@@ -3,14 +3,14 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
-# 1. הגדרות דף - החזרת הלוגו המקורי לטאב
+# 1. הגדרות דף - נשמר יציב
 st.set_page_config(
     page_title="Orion Executive Insights",
-    page_icon="logo.png", # חזר להיות הלוגו המקורי
+    page_icon="logo.png", 
     layout="wide"
 )
 
-# 2. CSS ממוקד ומלוטש
+# 2. CSS - כל התיקונים הויזואליים בפנים
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600&display=swap');
@@ -21,14 +21,14 @@ st.markdown("""
         text-align: right;
     }
 
-    /* הגבלת רוחב למניעת מריחה */
+    /* מניעת מריחה ברזולוציות נמוכות */
     .main .block-container {
         max-width: 1100px;
         padding: 2rem;
         margin: 0 auto;
     }
 
-    /* כותרת ושורת סנכרון צמודות לימין */
+    /* יישור ימני קשיח להדר */
     .header-section {
         text-align: right;
         width: 100%;
@@ -36,14 +36,12 @@ st.markdown("""
     }
 
     .sync-text {
-        color: #28a745; /* ירוק עדין לסנכרון */
+        color: #28a745;
         font-size: 0.85rem;
-        font-weight: 400;
         display: block;
         margin-top: -5px;
     }
 
-    /* עיצוב כרטיסי מדדים */
     [data-testid="stMetric"] {
         background: white;
         border: 1px solid #DFE1E6;
@@ -51,7 +49,6 @@ st.markdown("""
         padding: 15px !important;
     }
 
-    /* תיבת תובנה */
     .insight-card {
         background-color: #DEEBFF;
         border-right: 5px solid #0052CC;
@@ -60,7 +57,6 @@ st.markdown("""
         margin: 20px 0;
     }
     
-    /* אייקון אוריון בצ'אט */
     .orion-icon {
         width: 24px;
         height: 24px;
@@ -74,17 +70,17 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Header (ללא לוגו באתר, אך עם יישור ימני חזק)
-st.markdown("""
+# 3. Header
+st.markdown(f"""
     <div class="header-section">
         <h1 style='margin:0;'>מרכז התובנות של Orion</h1>
-        <span class="sync-text">✅ Jira Cloud Connected | """ + datetime.now().strftime("%H:%M") + """</span>
+        <span class="sync-text">✅ Jira Cloud Connected | {datetime.now().strftime("%H:%M")}</span>
     </div>
 """, unsafe_allow_html=True)
 
 st.markdown("---")
 
-# 4. Sidebar (שאל את אוריון עם אייקון משופר)
+# 4. Sidebar
 with st.sidebar:
     st.markdown('<div style="font-weight:600; font-size:1.1rem; margin-bottom:15px;"><span class="orion-icon"></span>שאל את אוריון</div>', unsafe_allow_html=True)
     if "messages" not in st.session_state:
@@ -95,36 +91,34 @@ with st.sidebar:
         st.session_state.messages.append({"role": "user", "content": prompt})
         st.rerun()
 
-# 5. מדדים אסטרטגיים
+# 5. מדדים
 st.markdown("### 📌 תמונת מצב")
 m1, m2, m3 = st.columns(3)
 with m1: st.metric("Resource Leak", "Low", "Stable")
 with m2: st.metric("Focus Factor", "62%", "-5% ⚠️")
-with m3: st.metric("Sentiment Score", "7.2/10", "+0.4 📈")
+with m3: st.metric("Communication Gaps", "2.4", "-0.8") # המדד החדש כאן
 
 st.markdown("""
     <div class="insight-card">
-        <strong>🦉 תובנת אוריון:</strong> זיהיתי עומס קוגניטיבי גבוה בצוות ה-Backend. 
-        מומלץ לרכז משימות קטנות ל-Epic אחד כדי לשמור על רצף עבודה (Deep Work).
+        <strong>🦉 תובנת אוריון:</strong> זיהיתי עלייה ב-"Communication Gaps" סביב משימות ה-API. מומלץ לוודא סנכרון בין צוותי ה-Frontend וה-Backend.
     </div>
 """, unsafe_allow_html=True)
 
-# 6. גרפים (Trends)
+# 6. גרפים
 st.markdown("### 📈 מגמות עומק (Exclusive Trends)")
 g1, g2 = st.columns(2)
 
-data = pd.DataFrame(np.random.randint(5, 15, size=(12, 2)), columns=['Switching', 'Sentiment'])
+data = pd.DataFrame(np.random.randint(5, 15, size=(12, 2)), columns=['A', 'B'])
 
 with g1:
     st.write("**🧠 עומס קוגניטיבי (Context Switching)**")
-    # צבע ורוד מוח מדויק
-    st.area_chart(data['Switching'], color="#FF99CC", height=180)
+    st.area_chart(data['A'], color="#FFADCC", height=180) # ורוד מוח נשמר
 
 with g2:
-    st.write("**💬 מדד שביעות רצון (Sentiment Drift)**")
-    st.line_chart(data['Sentiment'], color="#36B37E", height=180)
+    st.write("**📢 חוסר בתקשורת סביב משימות (Communication Gaps)**")
+    st.line_chart(data['B'], color="#FFAB00", height=180) # כתום אזהרה
 
-# 7. פעולות ניהוליות
+# 7. פעולות
 st.markdown("### ⚡ פעולות ניהוליות")
 c1, c2, c3 = st.columns(3)
 with c1: st.button("📊 הפקת דוח סטטוס")
