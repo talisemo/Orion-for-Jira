@@ -3,14 +3,14 @@ import google.generativeai as genai
 import pandas as pd
 from datetime import datetime
 
-# 1. הגדרות דף - האייקון השקוף לטאב
+# 1. הגדרות דף - שימוש באייקון השקוף לטאב
 st.set_page_config(
     page_title="Orion - Smart Executive Insights",
     page_icon="icon.png", 
     layout="wide"
 )
 
-# 2. עיצוב CSS (מותאם ל-Jira Soft Blue ויישור לימין)
+# 2. עיצוב CSS מותאם ל-Jira ויישור RTL
 st.markdown("""
     <style>
     :root {
@@ -31,7 +31,6 @@ st.markdown("""
         border: 1px solid #DFE1E6;
         border-top: 5px solid var(--jira-soft-blue);
         border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 101, 255, 0.05);
     }
 
     .insight-box {
@@ -40,7 +39,6 @@ st.markdown("""
         padding: 20px;
         border-radius: 4px;
         color: #172B4D;
-        font-size: 1.1rem;
     }
 
     .stButton>button {
@@ -50,20 +48,13 @@ st.markdown("""
         background-color: white;
         width: 100%;
         font-weight: bold;
-        transition: 0.3s;
-    }
-
-    .stButton>button:hover {
-        background-color: var(--jira-soft-blue);
-        color: white;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. כותרת האפליקציה עם הלוגו המלא
+# 3. כותרת האפליקציה עם לוגו
 col_logo, col_title = st.columns([0.2, 0.8])
 with col_logo:
-    # הצגת הלוגו המלא בתוך האפליקציה
     try:
         st.image("logo.jpg", width=180)
     except:
@@ -71,15 +62,15 @@ with col_logo:
 
 with col_title:
     st.title("מרכז התובנות של Orion")
-    st.caption(f"● סריקה אחרונה: {datetime.now().strftime('%H:%M')} | מסונכרן עם Jira Cloud")
+    st.caption(f"סנכרון אחרון: {datetime.now().strftime('%H:%M')}")
 
 st.markdown("---")
 
-# 4. מבנה העמוד: נתונים בצד ימין, צ'אט בצד שמאל
+# 4. תוכן האפליקציה
 col_data, col_chat = st.columns([2, 1])
 
 with col_data:
-    st.markdown("### 🎯 מדדים אסטרטגיים")
+    st.markdown("### מדדים אסטרטגיים")
     m1, m2, m3 = st.columns(3)
     with m1: st.metric("Scope Outflow", "3", "משימות")
     with m2: st.metric("Cycle Time", "5.2 ימים", "+1.2")
@@ -87,49 +78,41 @@ with col_data:
 
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # תיבת תובנות AI
-    st.markdown(f"""
+    st.markdown("""
         <div class="insight-box">
-            <strong>🦉 ניתוח אוריון (AI Insights):</strong><br>
-            זיהיתי מגמת האטה בביצועי ה-Frontend. <b>אלון</b> ו<b>דנה</b> נמצאים בצוואר בקבוק במשימת ה-Integration. 
-            מומלץ לבדוק בדיילי האם יש חוסם טכני או צורך בעזרה מרוני.
+            <strong>ניתוח אוריון:</strong><br>
+            זיהיתי האטה בביצועי ה-Frontend. אלון ודנה נמצאים בצוואר בקבוק.
         </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # כפתורי פעולה מהירים (ללא אימוג'ים בתוך הטקסט למניעת שגיאות)
-    st.markdown("### 🛠️ פעולות מהירות")
+    st.markdown("<br>### פעולות מהירות")
     c1, c2, c3 = st.columns(3)
+    
+    # תיקון השגיאה: טקסטים נקיים ללא סימנים מיוחדים בתוך הפונקציה
     with c1: 
-        if st.button("הפק דווח סטטוס"):
-            st.info("מייצר דווח סטטוס על בסיס נתוני הג'ירה...")
+        if st.button("הפקת דוח סטטוס"):
+            st.info("מייצר דוח סטטוס כעת")
     with c2: 
         if st.button("ניתוח סיכונים"):
-            st.warning("סורק חריגות ועיכובים בלו"ז...")
+            st.warning("סורק חריגות בנתונים")
     with c3: 
-        if st.button("תקציר דיילי"):
-            st.success("מכין נקודות מרכזיות לישיבת הבוקר...")
+        if st.button("תקציר יומי"):
+            st.success("מכין תקציר לישיבה")
 
 with col_chat:
-    st.markdown("### 🦉 שאל את אוריון")
-    
-    # ניהול זיכרון הצ'אט
+    st.markdown("### שאל את אוריון")
     if "messages" not in st.session_state:
-        st.session_state.messages = [{"role": "assistant", "content": "היי! אני אוריון. אני סורק את הג'ירה ברקע. יש משהו ספציפי שתרצי שאבדוק?"}]
+        st.session_state.messages = [{"role": "assistant", "content": "היי, איך אני יכול לעזור היום?"}]
 
-    # הצגת היסטוריית ההודעות
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    # קלט מהמשתמש וחיבור ל-Gemini
-    if prompt := st.chat_input("שאל את אוריון..."):
+    if prompt := st.chat_input("כתבי כאן..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"): 
+        with st.chat_message("user"):
             st.markdown(prompt)
         
-        # ניסיון התחברות ל-API
         api_key = st.secrets.get("GOOGLE_API_KEY")
         if api_key:
             try:
@@ -140,7 +123,4 @@ with col_chat:
                     st.markdown(response.text)
                     st.session_state.messages.append({"role": "assistant", "content": response.text})
             except Exception as e:
-                st.error(f"שגיאה בחיבור ל-AI: {e}")
-        else:
-            with st.chat_message("assistant"):
-                st.markdown("היי! כדי שאוכל לענות, את צריכה להגדיר את ה-API Key ב-Secrets של Streamlit.")
+                st.error("חלה שגיאה בחיבור לבינה המלאכותית")
