@@ -2,20 +2,27 @@ import streamlit as st
 import google.generativeai as genai
 from datetime import datetime
 import os
+import pandas as pd
+import numpy as np
 
-# 1. הגדרות דף - האייקון השקוף לטאב
+# 1. הגדרות דף - אייקון וטאב
 st.set_page_config(
     page_title="Orion | Smart Executive Insights",
     page_icon="icon.png", 
     layout="wide"
 )
 
-# 2. עיצוב CSS מתקדם - מחזיר את המראה המקצועי
+# 2. עיצוב CSS - החזרת הכחול העמוק והיוקרתי
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&display=swap');
     
-    html, body, [data-testid="ststMarkdownContainer"] {
+    :root {
+        --orion-blue: #0052CC; /* הכחול העמוק של אוריון/ג'ירה */
+        --orion-light-blue: #DEEBFF;
+    }
+
+    html, body, [data-testid="stMarkdownContainer"] {
         font-family: 'Assistant', sans-serif;
         direction: rtl;
         text-align: right;
@@ -23,75 +30,84 @@ st.markdown("""
 
     .stApp { background-color: #F4F5F7; }
 
-    /* עיצוב כרטיסי המדדים */
+    /* עיצוב כרטיסי המדדים והגרפים */
     [data-testid="stMetric"] {
         background-color: white;
         border: 1px solid #DFE1E6;
-        border-top: 5px solid #0065FF;
+        border-top: 5px solid var(--orion-blue);
         border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        padding: 15px !important;
     }
 
-    /* תיבת תובנות AI */
+    /* תיבת תובנות AI מלוטשת */
     .insight-box {
-        background: linear-gradient(90deg, #DEEBFF 0%, #FFFFFF 100%);
-        border-right: 8px solid #0065FF;
+        background: white;
+        border-right: 8px solid var(--orion-blue);
         padding: 25px;
         border-radius: 8px;
         margin: 20px 0;
         color: #172B4D;
-        font-size: 1.2rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        font-size: 1.1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
-    /* עיצוב כפתורים */
+    /* כפתורי פעולה בכחול עמוק */
     .stButton>button {
-        border-radius: 25px;
-        border: 2px solid #0065FF;
-        color: #0065FF;
+        border-radius: 10px;
+        border: 2px solid var(--orion-blue);
+        color: var(--orion-blue);
         background-color: white;
         font-weight: bold;
-        transition: all 0.3s;
-        height: 3em;
+        height: 3.5em;
+        width: 100%;
     }
     .stButton>button:hover {
-        background-color: #0065FF;
+        background-color: var(--orion-blue);
         color: white;
-        transform: translateY(-2px);
     }
+
+    /* תיקון צבע הגרפים לדיפולט כחול אוריון */
+    .stPlotlyChart { color: var(--orion-blue); }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. באנר עליון - לוגו וכותרת
-col_logo, col_title = st.columns([1, 5])
-
-with col_logo:
-    # ניסיון טעינת לוגו חכם
-    if os.path.exists("logo.jpg"):
-        st.image("logo.jpg", width=150)
-    elif os.path.exists("logo.png"):
-        st.image("logo.png", width=150)
-    else:
-        st.markdown("## 🌌 Orion")
+# 3. באנר עליון
+col_title, col_logo = st.columns([4, 1])
 
 with col_title:
     st.title("מרכז התובנות של Orion")
     st.caption(f"✨ סנכרון אחרון: {datetime.now().strftime('%H:%M')} | Jira Cloud Connected")
 
+with col_logo:
+    if os.path.exists("logo.jpg"):
+        st.image("logo.jpg", width=140)
+    elif os.path.exists("logo.png"):
+        st.image("logo.png", width=140)
+
 st.markdown("---")
 
-# 4. חלוקת העמוד
-col_data, col_chat = st.columns([1.8, 1])
+# 4. חלוקת העמוד הראשי
+col_data, col_chat = st.columns([2, 1])
 
 with col_data:
-    st.markdown("### 📊 מדדים אסטרטגיים")
-    m1, m2, m3 = st.columns(3)
-    with m1: st.metric("Scope Outflow", "3", "משימות חריגות")
-    with m2: st.metric("Cycle Time", "5.2 ימים", "1.2+ ⚠️")
-    with m3: st.metric("Risk Level", "Medium", "Stable ✅")
+    st.markdown("### 📊 מגמות וביצועים")
+    
+    # החזרת הגרפים הויזואליים
+    m1, m2 = st.columns(2)
+    
+    with m1:
+        st.write("**Cycle Time (שבועי)**")
+        chart_data = pd.DataFrame(np.random.randn(10, 1), columns=['ימים'])
+        st.area_chart(chart_data, height=150, use_container_width=True)
+        st.metric("ממוצע נוכחי", "5.2 ימים", "1.2+ ⚠️")
 
-    st.markdown(f"""
+    with m2:
+        st.write("**משימות שהושלמו (Velocity)**")
+        chart_data2 = pd.DataFrame(np.random.randn(10, 1), columns=['Tasks'])
+        st.area_chart(chart_data2, height=150, use_container_width=True)
+        st.metric("Scope Outflow", "3", "משימות חריגות")
+
+    st.markdown("""
         <div class="insight-box">
             <strong>🦉 תובנת אוריון:</strong><br>
             זיהיתי צוואר בקבוק בצוות ה-Frontend. המשימות של <b>אלון ודנה</b> מעכבות את ה-Integration. 
@@ -101,32 +117,27 @@ with col_data:
 
     st.markdown("### ⚡ פעולות מהירות")
     c1, c2, c3 = st.columns(3)
-    with c1: 
-        if st.button("📝 הפקת דוח סטטוס"):
-            st.info("מכין דוח PDF מפורט...")
-    with c2: 
-        if st.button("🔍 ניתוח סיכונים"):
-            st.warning("סורק חריגות בלוחות הזמנים...")
-    with c3: 
-        if st.button("📅 תקציר דיילי"):
-            st.success("התקציר מוכן להצגה!")
+    with c1: st.button("📝 הפקת דוח סטטוס")
+    with c2: st.button("🔍 ניתוח סיכונים")
+    with c3: st.button("📅 תקציר דיילי")
 
 with col_chat:
     st.markdown("### 🦉 שאל את אוריון")
     
     if "messages" not in st.session_state:
-        st.session_state.messages = [{"role": "assistant", "content": "היי! אני אוריון. אני מחוברת לג'ירה שלך. מה תרצי שאבדוק עבורך?"}]
+        st.session_state.messages = [{"role": "assistant", "content": "היי! אני אוריון. איך אני יכולה לעזור לך עם נתוני הג'ירה היום?"}]
 
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+    chat_container = st.container(height=450)
+    with chat_container:
+        for message in st.session_state.messages:
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
 
-    if prompt := st.chat_input("למשל: מי הצוות הכי עמוס השבוע?"):
+    if prompt := st.chat_input("למשל: איזה צוות הכי יעיל החודש?"):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
         
-        # חיבור לבינה מלאכותית
         api_key = st.secrets.get("GOOGLE_API_KEY")
         if api_key:
             try:
@@ -137,6 +148,4 @@ with col_chat:
                     st.markdown(response.text)
                     st.session_state.messages.append({"role": "assistant", "content": response.text})
             except:
-                st.error("חיבור ה-AI נכשל. בדקי את ה-API Key.")
-        else:
-            st.info("אנא הגדירי API Key כדי להפעיל את אוריון.")
+                st.error("שגיאה בחיבור ל-AI.")
