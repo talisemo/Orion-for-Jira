@@ -3,14 +3,14 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
-# 1. הגדרות דף
+# 1. הגדרות דף - החזרת הלוגו המקורי לטאב
 st.set_page_config(
     page_title="Orion Executive Insights",
-    page_icon="🧠", 
+    page_icon="logo.png", # חזר להיות הלוגו המקורי
     layout="wide"
 )
 
-# 2. CSS ממוקד (RTL ויישור ימני)
+# 2. CSS ממוקד ומלוטש
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600&display=swap');
@@ -21,20 +21,26 @@ st.markdown("""
         text-align: right;
     }
 
-    /* הגבלת רוחב למניעת מריחה בזום */
+    /* הגבלת רוחב למניעת מריחה */
     .main .block-container {
         max-width: 1100px;
         padding: 2rem;
         margin: 0 auto;
     }
 
-    /* יישור שורת הסנכרון לימין */
-    .sync-text {
-        color: #6B778C;
-        font-size: 0.85rem;
+    /* כותרת ושורת סנכרון צמודות לימין */
+    .header-section {
         text-align: right;
-        margin-top: -10px;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .sync-text {
+        color: #28a745; /* ירוק עדין לסנכרון */
+        font-size: 0.85rem;
+        font-weight: 400;
         display: block;
+        margin-top: -5px;
     }
 
     /* עיצוב כרטיסי מדדים */
@@ -54,27 +60,33 @@ st.markdown("""
         margin: 20px 0;
     }
     
-    /* כותרת הצ'אט עם אייקון אוריון */
-    .chat-header {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-weight: 600;
-        font-size: 1.1rem;
-        margin-bottom: 15px;
+    /* אייקון אוריון בצ'אט */
+    .orion-icon {
+        width: 24px;
+        height: 24px;
+        background-image: url('https://img.icons8.com/fluency/48/brain.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 8px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Header נקי (בלי לוגו)
-st.markdown("<h1 style='margin-bottom:0;'>מרכז התובנות של Orion</h1>", unsafe_allow_html=True)
-st.markdown(f'<span class="sync-text">Jira Cloud Connected | {datetime.now().strftime("%H:%M")} ✅</span>', unsafe_allow_html=True)
+# 3. Header (ללא לוגו באתר, אך עם יישור ימני חזק)
+st.markdown("""
+    <div class="header-section">
+        <h1 style='margin:0;'>מרכז התובנות של Orion</h1>
+        <span class="sync-text">✅ Jira Cloud Connected | """ + datetime.now().strftime("%H:%M") + """</span>
+    </div>
+""", unsafe_allow_html=True)
 
 st.markdown("---")
 
-# 4. Sidebar (צ'אט מעודכן)
+# 4. Sidebar (שאל את אוריון עם אייקון משופר)
 with st.sidebar:
-    st.markdown('<div class="chat-header">🔵 שאל את אוריון</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-weight:600; font-size:1.1rem; margin-bottom:15px;"><span class="orion-icon"></span>שאל את אוריון</div>', unsafe_allow_html=True)
     if "messages" not in st.session_state:
         st.session_state.messages = [{"role": "assistant", "content": "היי טלי, במה אוכל לעזור?"}]
     for m in st.session_state.messages:
@@ -83,10 +95,10 @@ with st.sidebar:
         st.session_state.messages.append({"role": "user", "content": prompt})
         st.rerun()
 
-# 5. מדדים
+# 5. מדדים אסטרטגיים
 st.markdown("### 📌 תמונת מצב")
 m1, m2, m3 = st.columns(3)
-with m1: st.metric("Resource Leak", "Low", "Stable ✅")
+with m1: st.metric("Resource Leak", "Low", "Stable")
 with m2: st.metric("Focus Factor", "62%", "-5% ⚠️")
 with m3: st.metric("Sentiment Score", "7.2/10", "+0.4 📈")
 
@@ -105,8 +117,8 @@ data = pd.DataFrame(np.random.randint(5, 15, size=(12, 2)), columns=['Switching'
 
 with g1:
     st.write("**🧠 עומס קוגניטיבי (Context Switching)**")
-    # שימוש בורוד התואם לאמוג'י
-    st.area_chart(data['Switching'], color="#FF8AD8", height=180)
+    # צבע ורוד מוח מדויק
+    st.area_chart(data['Switching'], color="#FF99CC", height=180)
 
 with g2:
     st.write("**💬 מדד שביעות רצון (Sentiment Drift)**")
@@ -117,4 +129,4 @@ st.markdown("### ⚡ פעולות ניהוליות")
 c1, c2, c3 = st.columns(3)
 with c1: st.button("📊 הפקת דוח סטטוס")
 with c2: st.button("🔍 ניתוח סיכונים")
-with c3: st.button("📅 נושאים לדיילי") # עדכון השם
+with c3: st.button("📅 נושאים לדיילי")
