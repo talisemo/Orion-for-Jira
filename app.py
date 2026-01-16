@@ -1,110 +1,74 @@
 import streamlit as st
 import google.generativeai as genai
+import pandas as pd
 
-# הגדרות דף - Orion TPM
-st.set_page_config(
-    page_title="Orion - AI TPM Assistant", 
-    page_icon="🦉", 
-    layout="centered"
-)
+st.set_page_config(page_title="Orion - TPM Insights", page_icon="🦉", layout="wide")
 
-# עיצוב מותאם אישית בסגנון ג'ירה (Atlassian Design System)
+# עיצוב בסגנון ג'ירה עם דגש על Insights
 st.markdown("""
     <style>
-    /* צבעי בסיס ופונטים */
-    :root {
-        --jira-blue: #0052CC;
-        --atlassian-gray: #F4F5F7;
-    }
-    
-    .main {
-        background-color: #FFFFFF;
-        text-align: right;
-        direction: rtl;
-    }
-    
-    /* עיצוב כותרת וטקסטים */
-    h1 {
-        color: #172B4D;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    
-    /* עיצוב תיבת הצ'אט */
-    .stChatMessage {
-        border-radius: 8px;
+    .main, .stApp { direction: rtl; text-align: right; }
+    .insight-card {
+        background-color: #EBF2FF;
+        border-right: 5px solid #0052CC;
+        padding: 15px;
+        border-radius: 5px;
         margin-bottom: 10px;
     }
-    
-    /* עיצוב הסרגל הצידי */
-    .stSidebar {
-        background-color: #0747A6 !important;
-        color: white;
-    }
-    
-    /* כפתור ה-Submit */
-    button[kind="primary"] {
-        background-color: var(--jira-blue);
-        border: none;
-        color: white;
-    }
-    
-    /* בועות צ'אט */
-    [data-testid="stChatMessage"] {
-        background-color: #F4F5F7;
-        border: 1px solid #DFE1E6;
-    }
+    .metric-container { background-color: white; border: 1px solid #DFE1E6; padding: 20px; border-radius: 8px; }
     </style>
     """, unsafe_allow_html=True)
 
-# הצגת הלוגו והכותרת במרכז
-col1, col2, col3 = st.columns([1, 1, 1])
-with col2:
-    try:
-        st.image("logo.png", width=100)
-    except:
-        st.write("🦉")
+# כותרת
+st.title("Orion Insights - מעבר לדשבורד הרגיל")
+st.markdown("---")
 
-st.markdown("<h1 style='text-align: center;'>אוריון - עוזר ה-TPM</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #6B778C;'>סנכרון נתונים וניתוח משימות ג'ירה בזמן אמת</p>", unsafe_allow_html=True)
+col_data, col_chat = st.columns([2, 1])
 
-# משיכת ה-API Key מה-Secrets
-api_key = st.secrets.get("GOOGLE_API_KEY")
+with col_data:
+    st.subheader("🎯 תובנות ניהוליות (מעבר לג'ירה הסטנדרטית)")
+    
+    # מדדים חכמים
+    m1, m2, m3 = st.columns(3)
+    with m1:
+        st.metric("Scope Outflow (הוצאו)", "3", "משימות", delta_color="normal")
+        st.caption("משימות שיצאו מהספרינט הנוכחי")
+    with m2:
+        st.metric("Cycle Time", "5.2 ימים", "+1.2", delta_color="inverse")
+        st.caption("זמן ממוצע לביצוע משימה (מגמת האטה)")
+    with m3:
+        st.metric("Risk Level", "Medium", "Trending Up", delta_color="inverse")
+        st.caption("מדד סיכון משוקלל לספרינט")
 
-if not api_key:
-    with st.sidebar:
-        st.markdown("### הגדרות מערכת")
-        api_key = st.text_input("הזן Gemini API Key:", type="password")
+    st.markdown("### ⚠️ זיהוי צווארי בקבוק (Heatmap)")
+    # נתוני דמה של עומס אמיתי
+    load_data = pd.DataFrame({
+        'איש צוות': ['יוסי', 'דנה', 'רוני', 'אלון'],
+        'עומס נוכחי (%)': [85, 120, 45, 90]
+    })
+    st.bar_chart(load_data.set_index('איש צוות'), color='#0052CC')
+    st.warning("דנה נמצאת ב-Overload. מומלץ לבדוק העברת משימות לרוני.")
 
-if api_key:
-    try:
-        genai.configure(api_key=api_key)
-        # שימוש במודל יציב ומהיר
-        model = genai.GenerativeModel('gemini-1.5-flash')
+with col_chat:
+    st.subheader("🦉 שאל את אוריון")
+    
+    if "messages" not in st.session_state:
+        st.session_state.messages = [{"role": "assistant", "content": "היי! זיהיתי ש-3 משימות יצאו מהספרינט אתמול. רוצה לדעת מי הוציא אותן ואיך זה משפיע על תאריך היעד?"}]
+
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    if prompt := st.chat_input("למשל: 'מי הכי עמוס בצוות?'"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"): st.markdown(prompt)
         
-        # ניהול היסטוריית שיחה
-        if "messages" not in st.session_state:
-            st.session_state.messages = []
-
-        # הצגת הודעות קודמות בפורמט צ'אט
-        for message in st.session_state.messages:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
-
-        # תיבת קלט
-        if prompt := st.chat_input("שאל את אוריון על הפרויקט שלך..."):
-            # הוספת הודעת משתמש
-            st.session_state.messages.append({"role": "user", "content": prompt})
-            with st.chat_message("user"):
-                st.markdown(prompt)
-
-            # יצירת תשובה מה-AI
+        # חיבור ל-AI
+        api_key = st.secrets.get("GOOGLE_API_KEY")
+        if api_key:
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            response = model.generate_content(prompt)
             with st.chat_message("assistant", avatar="🦉"):
-                with st.spinner("אוריון מנתח את הנתונים..."):
-                    response = model.generate_content(prompt)
-                    st.markdown(response.text)
-                    st.session_state.messages.append({"role": "assistant", "content": response.text})
-                
-    except Exception as e:
-        st.error(f"אירעה שגיאה בחיבור למנוע ה-AI: {e}")
-else:
-    st.warning("המערכת ממתינה להגדרת מפתח API כדי להתחיל לפעול.")
+                st.markdown(response.text)
+                st.session_state.messages.append({"role": "assistant", "content": response.text})
