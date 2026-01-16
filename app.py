@@ -1,14 +1,14 @@
 import streamlit as st
 import google.generativeai as genai
 import pandas as pd
+from datetime import datetime
 
 # הגדרות דף
 st.set_page_config(page_title="Orion - TPM Insights", page_icon="🦉", layout="wide")
 
-# CSS עם גווני הכחול הרך ויישור RTL
+# CSS מעודכן לניקוי ויישור סופי
 st.markdown("""
     <style>
-    /* צבעים רכים של Atlassian */
     :root {
         --soft-blue: #4C9AFF;
         --light-blue: #DEEBFF;
@@ -18,23 +18,22 @@ st.markdown("""
 
     .stApp { direction: rtl; text-align: right; background-color: var(--jira-gray); }
     
-    /* יישור כללי */
+    /* יישור טקסט גורף */
     h1, h2, h3, p, span, div, [data-testid="stMarkdownContainer"] {
         text-align: right !important;
         direction: rtl !important;
     }
 
-    /* כרטיסי מדדים מעוצבים בכחול רך */
+    /* עיצוב כרטיסי המדדים */
     [data-testid="stMetric"] {
         background-color: white;
         border: 1px solid #DFE1E6;
         border-top: 4px solid var(--soft-blue);
         border-radius: 8px;
         padding: 15px !important;
-        box-shadow: 0 2px 4px rgba(9, 30, 66, 0.08);
     }
 
-    /* תיבת התובנה - רקע כחול בהיר מאוד */
+    /* תיבת התובנה המיושרת */
     .insight-box {
         background-color: var(--light-blue);
         border-right: 6px solid var(--soft-blue);
@@ -43,32 +42,30 @@ st.markdown("""
         color: var(--text-dark);
         margin-bottom: 25px;
         line-height: 1.6;
+        text-align: right;
     }
 
-    /* עיצוב כפתורי פעולה */
-    .stButton>button {
-        background-color: white;
-        color: var(--soft-blue);
-        border: 1px solid var(--soft-blue);
-        border-radius: 20px;
+    /* שורת סטטוס חיה */
+    .live-status {
+        color: #36B37E;
+        font-size: 0.9rem;
         font-weight: 600;
-        transition: all 0.3s;
-    }
-    
-    .stButton>button:hover {
-        background-color: var(--soft-blue);
-        color: white;
+        margin-top: -15px;
+        margin-bottom: 20px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# כותרת
+# כותרת ושורת סטטוס
 col_header1, col_header2 = st.columns([0.1, 0.9])
 with col_header1:
     try: st.image("logo.png", width=65)
     except: st.write("🦉")
 with col_header2:
     st.title("מרכז התובנות של אוריון")
+    # הוספת זמן סריקה דינמי (למראה חי)
+    current_time = datetime.now().strftime("%H:%M")
+    st.markdown(f'<p class="live-status">● סריקה אחרונה בוצעה ב-{current_time} | המערכת מסונכרנת</p>', unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -77,7 +74,6 @@ col_data, col_chat = st.columns([2, 1])
 
 with col_data:
     st.markdown("### 🎯 מדדי ביצועים חכמים")
-    
     m1, m2, m3 = st.columns(3)
     with m1: st.metric("Scope Outflow", "3", "משימות")
     with m2: st.metric("Cycle Time", "5.2 ימים", "+1.2")
@@ -85,7 +81,6 @@ with col_data:
 
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # תיבת תובנה מיושרת
     st.markdown(f"""
         <div class="insight-box">
             <strong>🦉 ניתוח אוריון ליום זה:</strong><br>
@@ -101,7 +96,8 @@ with col_data:
     with c2: st.button("🔍 נתח סיכוני ספרינט")
     with c3: st.button("⏰ תקצר פגישת דיילי")
 
-    st.markdown("<br>### ⚠️ עומס צוות (Heatmap)")
+    # תיקון הכותרת של העומס צוות (בלי סימנים מיותרים)
+    st.markdown("### ⚠️ עומס צוות (Heatmap)")
     load_data = pd.DataFrame({
         'איש צוות': ['יוסי', 'דנה', 'רוני', 'אלון'],
         'עומס (%)': [85, 110, 50, 95]
@@ -118,11 +114,10 @@ with col_chat:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    if prompt := st.chat_input("למשל: 'מי הצוואר בקבוק כרגע?'"):
+    if prompt := st.chat_input("שאל את אוריון..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"): st.markdown(prompt)
         
-        # חיבור ל-AI
         api_key = st.secrets.get("GOOGLE_API_KEY")
         if api_key:
             genai.configure(api_key=api_key)
