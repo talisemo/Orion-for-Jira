@@ -3,14 +3,14 @@ import google.generativeai as genai
 import pandas as pd
 from datetime import datetime
 
-# הגדרות דף - עכשיו עם הלוגו החדש!
+# 1. הגדרות דף - האייקון השקוף לטאב
 st.set_page_config(
     page_title="Orion - Smart Executive Insights",
-    page_icon="logo.png",
+    page_icon="icon.png", 
     layout="wide"
 )
 
-# CSS עם הכחול הרך המדויק ויישור RTL
+# 2. עיצוב CSS (מותאם ל-Jira Soft Blue ויישור לימין)
 st.markdown("""
     <style>
     :root {
@@ -50,6 +50,7 @@ st.markdown("""
         background-color: white;
         width: 100%;
         font-weight: bold;
+        transition: 0.3s;
     }
 
     .stButton>button:hover {
@@ -59,19 +60,22 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# כותרת האפליקציה
-col_logo, col_title = st.columns([0.1, 0.9])
+# 3. כותרת האפליקציה עם הלוגו המלא
+col_logo, col_title = st.columns([0.2, 0.8])
 with col_logo:
+    # הצגת הלוגו המלא בתוך האפליקציה
     try:
-        st.image("logo.png", width=70)
+        st.image("logo.jpg", width=180)
     except:
-        st.write("🦉")
+        st.write("### Orion")
+
 with col_title:
     st.title("מרכז התובנות של Orion")
     st.caption(f"● סריקה אחרונה: {datetime.now().strftime('%H:%M')} | מסונכרן עם Jira Cloud")
 
 st.markdown("---")
 
+# 4. מבנה העמוד: נתונים בצד ימין, צ'אט בצד שמאל
 col_data, col_chat = st.columns([2, 1])
 
 with col_data:
@@ -83,6 +87,7 @@ with col_data:
 
     st.markdown("<br>", unsafe_allow_html=True)
     
+    # תיבת תובנות AI
     st.markdown(f"""
         <div class="insight-box">
             <strong>🦉 ניתוח אוריון (AI Insights):</strong><br>
@@ -91,31 +96,51 @@ with col_data:
         </div>
     """, unsafe_allow_html=True)
 
-    # כאן התיקון לשגיאה שראית בתמונה!
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # כפתורי פעולה מהירים (ללא אימוג'ים בתוך הטקסט למניעת שגיאות)
     st.markdown("### 🛠️ פעולות מהירות")
     c1, c2, c3 = st.columns(3)
-    with c1: st.button("הפק דווח סטטוס")
-    with c2: st.button("ניתוח סיכונים")
-    with c3: st.button("תקציר דיילי")
+    with c1: 
+        if st.button("הפק דווח סטטוס"):
+            st.info("מייצר דווח סטטוס על בסיס נתוני הג'ירה...")
+    with c2: 
+        if st.button("ניתוח סיכונים"):
+            st.warning("סורק חריגות ועיכובים בלו"ז...")
+    with c3: 
+        if st.button("תקציר דיילי"):
+            st.success("מכין נקודות מרכזיות לישיבת הבוקר...")
 
 with col_chat:
     st.markdown("### 🦉 שאל את אוריון")
+    
+    # ניהול זיכרון הצ'אט
     if "messages" not in st.session_state:
         st.session_state.messages = [{"role": "assistant", "content": "היי! אני אוריון. אני סורק את הג'ירה ברקע. יש משהו ספציפי שתרצי שאבדוק?"}]
 
+    # הצגת היסטוריית ההודעות
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
+    # קלט מהמשתמש וחיבור ל-Gemini
     if prompt := st.chat_input("שאל את אוריון..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"): st.markdown(prompt)
+        with st.chat_message("user"): 
+            st.markdown(prompt)
         
+        # ניסיון התחברות ל-API
         api_key = st.secrets.get("GOOGLE_API_KEY")
         if api_key:
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            response = model.generate_content(prompt)
-            with st.chat_message("assistant", avatar="🦉"):
-                st.markdown(response.text)
-                st.session_state.messages.append({"role": "assistant", "content": response.text})
+            try:
+                genai.configure(api_key=api_key)
+                model = genai.GenerativeModel('gemini-1.5-flash')
+                response = model.generate_content(prompt)
+                with st.chat_message("assistant"):
+                    st.markdown(response.text)
+                    st.session_state.messages.append({"role": "assistant", "content": response.text})
+            except Exception as e:
+                st.error(f"שגיאה בחיבור ל-AI: {e}")
+        else:
+            with st.chat_message("assistant"):
+                st.markdown("היי! כדי שאוכל לענות, את צריכה להגדיר את ה-API Key ב-Secrets של Streamlit.")
