@@ -3,14 +3,14 @@ import google.generativeai as genai
 import pandas as pd
 from datetime import datetime
 
-# הגדרות דף - כאן אנחנו מחליפים את הינשוף בלוגו החדש בטאב!
+# הגדרות דף - עכשיו עם הלוגו החדש!
 st.set_page_config(
     page_title="Orion - Smart Executive Insights",
-    page_icon="logo.png", # כאן הקסם קורה - הלוגו יופיע בטאב של הדפדפן
+    page_icon="logo.png",
     layout="wide"
 )
 
-# CSS עם הכחול הרך המדויק (#0065FF) והיישור לימין
+# CSS עם הכחול הרך המדויק ויישור RTL
 st.markdown("""
     <style>
     :root {
@@ -21,13 +21,11 @@ st.markdown("""
 
     .stApp { direction: rtl; text-align: right; background-color: var(--jira-background); }
     
-    /* יישור כותרות וטקסט */
     h1, h2, h3, p, span, div, [data-testid="stMarkdownContainer"] {
         text-align: right !important;
         direction: rtl !important;
     }
 
-    /* כרטיסי מדדים בכחול של אוריון */
     [data-testid="stMetric"] {
         background-color: white;
         border: 1px solid #DFE1E6;
@@ -36,7 +34,6 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(0, 101, 255, 0.05);
     }
 
-    /* תיבת התובנה של אוריון */
     .insight-box {
         background-color: var(--light-blue-hover);
         border-right: 6px solid var(--jira-soft-blue);
@@ -46,14 +43,13 @@ st.markdown("""
         font-size: 1.1rem;
     }
 
-    /* עיצוב כפתורים מעוגלים ומקצועיים */
     .stButton>button {
         border-radius: 20px;
         border: 1px solid var(--jira-soft-blue);
         color: var(--jira-soft-blue);
         background-color: white;
-        padding: 0.5rem 2rem;
-        transition: 0.3s;
+        width: 100%;
+        font-weight: bold;
     }
 
     .stButton>button:hover {
@@ -63,17 +59,19 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# כותרת עם הלוגו החדש
+# כותרת האפליקציה
 col_logo, col_title = st.columns([0.1, 0.9])
 with col_logo:
-    st.image("logo.png", width=70) # הלוגו החדש והמדהים שלך
+    try:
+        st.image("logo.png", width=70)
+    except:
+        st.write("🦉")
 with col_title:
     st.title("מרכז התובנות של Orion")
     st.caption(f"● סריקה אחרונה: {datetime.now().strftime('%H:%M')} | מסונכרן עם Jira Cloud")
 
 st.markdown("---")
 
-# המשך הממשק (כמו קודם, אבל עם העיצוב החדש)
 col_data, col_chat = st.columns([2, 1])
 
 with col_data:
@@ -93,13 +91,31 @@ with col_data:
         </div>
     """, unsafe_allow_html=True)
 
+    # כאן התיקון לשגיאה שראית בתמונה!
     st.markdown("### 🛠️ פעולות מהירות")
     c1, c2, c3 = st.columns(3)
-    with c1: st.button("📝 דו"ח סטטוס")
-    with c2: st.button("🔍 ניתוח סיכונים")
-    with c3: st.button("⏰ תקציר דיילי")
+    with c1: st.button("הפק דווח סטטוס")
+    with c2: st.button("ניתוח סיכונים")
+    with c3: st.button("תקציר דיילי")
 
 with col_chat:
-    # כאן הינשוף נשאר בתור ה-Avatar של הצ'אט
     st.markdown("### 🦉 שאל את אוריון")
-    # ... (שאר קוד הצ'אט)
+    if "messages" not in st.session_state:
+        st.session_state.messages = [{"role": "assistant", "content": "היי! אני אוריון. אני סורק את הג'ירה ברקע. יש משהו ספציפי שתרצי שאבדוק?"}]
+
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    if prompt := st.chat_input("שאל את אוריון..."):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"): st.markdown(prompt)
+        
+        api_key = st.secrets.get("GOOGLE_API_KEY")
+        if api_key:
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            response = model.generate_content(prompt)
+            with st.chat_message("assistant", avatar="🦉"):
+                st.markdown(response.text)
+                st.session_state.messages.append({"role": "assistant", "content": response.text})
