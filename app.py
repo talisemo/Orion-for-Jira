@@ -149,57 +149,29 @@ elif st.session_state.page == 'daily':
     st.button("🔙 חזרה לדאשבורד", on_click=lambda: navigate_to('dashboard'))
 
 
-# --- עמוד 4: ניתוח סיכונים חכם (גרסה מעוצבת ומתוקנת) ---
+# --- עמוד 4: ניתוח סיכונים חכם (תיקון עיצובי לחלק העליון) ---
 elif st.session_state.page == 'risks':
-    st.markdown("<h1 style='text-align: center;'>🔍 ניתוח סיכונים חכם</h1>", unsafe_allow_html=True)
-    
-    # שורת מדד ותובנה - סידור מרווחים
+    # כותרת מעודנת וממורכזת עם אייקון
+    st.markdown("<h2 style='text-align: center;'>🔍 ניתוח סיכונים חכם</h2>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
-    r_col1, r_col2 = st.columns([1, 2])
-    with r_col1:
-        st.metric("מדד ביטחון ספרינט", "82%", "-3%")
-    with r_col2:
-        st.info("🦉 **תובנת אוריון:** מדד הביטחון ירד בגלל הצטברות משימות ב-QA ב-48 השעות האחרונות.")
+    
+    # יצירת פריסה מאוזנת למדד ותובנה
+    col1, col2 = st.columns([1, 2.5])
+    
+    with col1:
+        # עיטוף המדד בתוך קופסה קטנה ליישור
+        st.markdown("<div style='background: #f8f9fa; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #e9ecef;'>", unsafe_allow_html=True)
+        st.metric("ביטחון ספרינט", "82%", "-3%")
+        st.markdown("</div>", unsafe_allow_html=True)
+        
+    with col2:
+        # התובנה הכחולה מיושרת לגובה המדד
+        st.markdown("""
+            <div style='background-color: #EBF2FF; border-right: 6px solid #0052CC; padding: 20px; border-radius: 4px; height: 100%; display: flex; align-items: center;'>
+                <span>🦉 <strong>תובנת אוריון:</strong> מדד הביטחון ירד בגלל הצטברות משימות ב-QA ב-48 השעות האחרונות. מומלץ לתגבר בדיקות.</span>
+            </div>
+        """, unsafe_allow_html=True)
 
-    st.markdown("---")
-    st.markdown("### ⚠️ סיכונים מרכזיים שזוהו")
+    st.markdown("<br><hr>", unsafe_allow_html=True)
     
-    # כרטיסי סיכון עם מרווחים פנימיים
-    risk_c1, risk_c2 = st.columns(2)
     
-    with risk_c1:
-        st.error("""
-        **🔥 סיכון קריטי: צוואר בקבוק ב-Backend**
-        
-        **סיבה:** 5 משימות מחכות לאישור Code Review.
-        
-        **השפעה:** עיכוב פוטנציאלי של 3 ימים.
-        """)
-        
-    with risk_c2:
-        st.warning("""
-        **🟡 סיכון בינוני: חוסר בבדיקות אוטומטיות**
-        
-        **סיבה:** רכיב ה-Payment לא מכוסה ב-Tests.
-        
-        **השפעה:** סיכון מוגבר לבאגים בייצור.
-        """)
-
-    st.markdown("<br>---<br>", unsafe_allow_html=True)
-    
-    # גרף צווארי בקבוק - תיקון ה-KeyError
-    st.markdown("### 🌡️ איפה משימות נתקעות? (Cycle Time)")
-    
-    # הגדרת הנתונים בצורה מפורשת למניעת שגיאות
-    chart_data = pd.DataFrame({
-        'stage': ['Planning', 'Dev', 'Code Review', 'QA', 'Deploy'],
-        'hours': [12, 24, 72, 48, 6]
-    })
-    
-    # תצוגת הגרף בתוך עמודה מרכזית
-    g_c1, g_c2, g_c3 = st.columns([0.2, 3, 0.2])
-    with g_c2:
-        st.bar_chart(data=chart_data, x='stage', y='hours', color="#FF4B4B")
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.button("🔙 חזרה לדאשבורד", on_click=lambda: navigate_to('dashboard'))
