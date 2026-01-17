@@ -149,57 +149,57 @@ elif st.session_state.page == 'daily':
     st.button("🔙 חזרה לדאשבורד", on_click=lambda: navigate_to('dashboard'))
 
 
-# --- עמוד 4: ניתוח סיכונים חכם (גרסה מסודרת) ---
+# --- עמוד 4: ניתוח סיכונים חכם (גרסה מעוצבת ומתוקנת) ---
 elif st.session_state.page == 'risks':
     st.markdown("<h1 style='text-align: center;'>🔍 ניתוח סיכונים חכם</h1>", unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
     
-    # שורת מדד ותובנה - סידור מחדש ליישור מושלם
-    r_col1, r_spacer, r_col2 = st.columns([1, 0.2, 3])
+    # שורת מדד ותובנה - סידור מרווחים
+    st.markdown("<br>", unsafe_allow_html=True)
+    r_col1, r_col2 = st.columns([1, 2])
     with r_col1:
         st.metric("מדד ביטחון ספרינט", "82%", "-3%")
     with r_col2:
         st.info("🦉 **תובנת אוריון:** מדד הביטחון ירד בגלל הצטברות משימות ב-QA ב-48 השעות האחרונות.")
 
-    st.markdown("<br><h3>⚠️ סיכונים מרכזיים שזוהו</h3>", unsafe_allow_html=True)
+    st.markdown("---")
+    st.markdown("### ⚠️ סיכונים מרכזיים שזוהו")
     
-    # כרטיסי סיכון עם מרווחים נכונים
+    # כרטיסי סיכון עם מרווחים פנימיים
     risk_c1, risk_c2 = st.columns(2)
     
     with risk_c1:
         st.error("""
         **🔥 סיכון קריטי: צוואר בקבוק ב-Backend**
         
-        **סיבה:** 5 משימות מחכות לאישור (Code Review) של אלון.
+        **סיבה:** 5 משימות מחכות לאישור Code Review.
         
-        **השפעה:** עיכוב פוטנציאלי של 3 ימים בעלייה לסביבה.
+        **השפעה:** עיכוב פוטנציאלי של 3 ימים.
         """)
         
     with risk_c2:
         st.warning("""
         **🟡 סיכון בינוני: חוסר בבדיקות אוטומטיות**
         
-        **סיבה:** רכיב ה-Payment החדש לא מכוסה ב-Tests.
+        **סיבה:** רכיב ה-Payment לא מכוסה ב-Tests.
         
-        **השפעה:** סיכון מוגבר לבאגים בייצור (Production).
+        **השפעה:** סיכון מוגבר לבאגים בייצור.
         """)
 
     st.markdown("<br>---<br>", unsafe_allow_html=True)
     
-    # גרף צווארי בקבוק - ממרכזים אותו קצת
+    # גרף צווארי בקבוק - תיקון ה-KeyError
     st.markdown("### 🌡️ איפה משימות נתקעות? (Cycle Time)")
-    g_col1, g_col2, g_col3 = st.columns([0.5, 3, 0.5]) # שימוש בטורים ריקים כ-Margins
-    with g_col2:
-        chart_data = pd.DataFrame({
-            'שלב': ['Planning', 'Dev', 'Code Review', 'QA', 'Deploy'],
-            'שעות המתנה': [12, 24, 72, 48, 6]
-        })
-        st.bar_chart(chart_data.set_index('שלב'), color="#FF4B4B", height=300)
+    
+    # הגדרת הנתונים בצורה מפורשת למניעת שגיאות
+    chart_data = pd.DataFrame({
+        'stage': ['Planning', 'Dev', 'Code Review', 'QA', 'Deploy'],
+        'hours': [12, 24, 72, 48, 6]
+    })
+    
+    # תצוגת הגרף בתוך עמודה מרכזית
+    g_c1, g_c2, g_c3 = st.columns([0.2, 3, 0.2])
+    with g_c2:
+        st.bar_chart(data=chart_data, x='stage', y='hours', color="#FF4B4B")
     
     st.markdown("<br>", unsafe_allow_html=True)
-    st.button("🔙 חזרה לדאשבורד", on_click=lambda: navigate_to('dashboard'))
-    
-    st.bar_chart(chart_data.set_index('שלב ב-Pipeline'), color="#FF4B4B")
-    
-    st.markdown("---")
     st.button("🔙 חזרה לדאשבורד", on_click=lambda: navigate_to('dashboard'))
